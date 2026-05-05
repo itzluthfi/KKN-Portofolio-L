@@ -6,9 +6,10 @@ import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphe
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 
-// Preload menggunakan path string langsung ke folder public
-useGLTF.preload('/card.glb');
-useTexture.preload('/lanyard.png');
+// Preload menggunakan BASE_URL agar path benar di GitHub Pages
+const BASE = import.meta.env.BASE_URL;
+useGLTF.preload(`${BASE}card.glb`);
+useTexture.preload(`${BASE}lanyard.png`);
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -82,9 +83,9 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }) {
     cardAttach = new THREE.Vector3(0, 1.42, 0);
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
   
-  // PERBAIKAN: Gunakan path string langsung ke public folder
-  const { nodes, materials } = useGLTF('/card.glb');
-  const texture = useTexture('/lanyard.png', texture => {
+  // Gunakan BASE_URL agar path asset benar di GitHub Pages
+  const { nodes, materials } = useGLTF(`${import.meta.env.BASE_URL}card.glb`);
+  const texture = useTexture(`${import.meta.env.BASE_URL}lanyard.png`, texture => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   });
   

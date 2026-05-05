@@ -8,15 +8,15 @@ export default Image;
 
 import Tools1 from "/assets/tools/vscode.png";
 import Tools2 from "/assets/tools/virtualbox.png";
-import Tools3 from "/assets/tools/vmware.png";
 import Tools4 from "/assets/tools/ubuntu.png";
-import Tools5 from "/assets/tools/kalilinux.png";
-import Tools6 from "/assets/tools/iptables.png";
 import Tools7 from "/assets/tools/mysql.png";
 import Tools8 from "/assets/tools/github.png";
 import Tools9 from "/assets/tools/sql.png";
-import Tools10 from "/assets/tools/canva.png";
 import Tools11 from "/assets/tools/windows.png";
+import ToolsCloudflare from "/assets/tools/cloudflare.png";
+import ToolsPostgre from "/assets/tools/postgresql.png";
+import ToolsStitch from "/assets/tools/google-stitch.png";
+import ToolsAntigravity from "/assets/tools/antigravity.png";
 
 export const listTools = [
   {
@@ -31,81 +31,81 @@ export const listTools = [
     id: 2,
     gambar: Tools2,
     nama: "Oracle Virtualbox",
-    ket: "Virtual machine",
+    ket: "Virtual Machine",
     dad: "200",
     link: "https://www.virtualbox.org/",
   },
   {
     id: 3,
-    gambar: Tools3,
-    nama: "VMware Workstation Pro",
-    ket: "Virtual machine",
-    dad: "300",
-    link: "https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion",
-  },
-  {
-    id: 4,
     gambar: Tools4,
     nama: "Ubuntu Server",
     ket: "Operating System",
-    dad: "400",
+    dad: "300",
     link: "https://ubuntu.com/server",
   },
   {
-    id: 5,
-    gambar: Tools5,
-    nama: "Kali Linux",
-    ket: "Operating System",
-    dad: "500",
-    link: "https://www.kali.org/",
-  },
-  {
-    id: 6,
-    gambar: Tools6,
-    nama: "Iptables",
-    ket: "Firewall",
-    dad: "600",
-    link: "https://netfilter.org/projects/iptables/",
-  },
-  {
-    id: 7,
+    id: 4,
     gambar: Tools7,
     nama: "MySQL",
-    ket: "Database Management System",
-    dad: "700",
+    ket: "Database",
+    dad: "400",
     link: "https://www.mysql.com/",
   },
   {
-    id: 8,
-    gambar: Tools8,
-    nama: "Github",
-    ket: "Repository",
-    dad: "800",
-    link: "https://github.com/",
+    id: 5,
+    gambar: ToolsPostgre,
+    nama: "PostgreSQL",
+    ket: "Database",
+    dad: "500",
+    link: "https://www.postgresql.org/",
   },
   {
-    id: 9,
+    id: 6,
     gambar: Tools9,
     nama: "SQL",
-    ket: "Database Query Language",
-    dad: "900",
+    ket: "Query Language",
+    dad: "600",
     link: "https://www.iso.org/standard/76583.html",
   },
   {
-    id: 10,
-    gambar: Tools10,
-    nama: "Canva",
-    ket: "Design App",
-    dad: "1000",
-    link: "https://www.canva.com/",
+    id: 7,
+    gambar: Tools8,
+    nama: "Github",
+    ket: "Repository",
+    dad: "700",
+    link: "https://github.com/",
   },
   {
-    id: 11,
+    id: 8,
+    gambar: ToolsCloudflare,
+    nama: "Cloudflare",
+    ket: "CDN & Security",
+    dad: "800",
+    link: "https://www.cloudflare.com/",
+  },
+  {
+    id: 9,
+    gambar: ToolsStitch,
+    nama: "Google Stitch",
+    ket: "Data Pipeline",
+    dad: "900",
+    link: "https://www.stitchdata.com/",
+  },
+  {
+    id: 10,
     gambar: Tools11,
     nama: "Windows",
     ket: "Operating System",
-    dad: "1100",
+    dad: "1000",
     link: "https://www.microsoft.com/windows",
+  },
+  {
+    id: 11,
+    gambar: ToolsAntigravity,
+    nama: "Antigravity AI",
+    ket: "AI Coding Assistant",
+    dad: "1100",
+    link: "https://antigravity.dev/",
   },
 ];
 

@@ -12,9 +12,9 @@ import LaserFlow from './components/effects/LaserFlow.jsx';
 let isFirstLoad = true;
 
 const stats = [
-  { value: '5+', label: 'Tahun studi dan eksplorasi IT' },
-  { value: '3', label: 'Project end-to-end terdokumentasi' },
-  { value: '24/7', label: 'Mindset monitoring dan reliability' },
+  { value: 'S1', label: 'Teknik Informatika ITATS aktif' },
+  { value: '8+', label: 'Web & sistem yang dikelola kampus' },
+  { value: '3+', label: 'Project end-to-end terdokumentasi' },
 ];
 
 const githubFallback = {
@@ -29,27 +29,27 @@ const githubFallback = {
 
 const focusAreas = [
   {
+    icon: 'ri-global-line',
+    title: 'Web Development',
+    body: 'Membangun aplikasi web full-stack dari frontend React/Next.js hingga backend Laravel/Node.js yang scalable dan maintainable.',
+  },
+  {
+    icon: 'ri-smartphone-line',
+    title: 'Mobile Development',
+    body: 'Mengembangkan aplikasi mobile cross-platform menggunakan Flutter & React Native, termasuk aplikasi classroom mobile resmi ITATS.',
+  },
+  {
     icon: 'ri-server-line',
-    title: 'System Administration',
-    body: 'Mengelola server Linux, service deployment, akses, dan stabilitas infrastruktur agar aplikasi tetap siap dipakai.',
-  },
-  {
-    icon: 'ri-shield-check-line',
-    title: 'Network Security',
-    body: 'Membangun eksperimen IDPS, firewall rules, logging, dan alerting untuk mendeteksi aktivitas mencurigakan.',
-  },
-  {
-    icon: 'ri-layout-4-line',
-    title: 'Frontend Engineering',
-    body: 'Membuat antarmuka React yang responsif, rapi, dan nyaman dipakai untuk mempresentasikan sistem teknis.',
+    title: 'IT Staff & DevOps',
+    body: 'Mengelola seluruh sistem web kampus ITATS (SIM, SIMPEG, Classroom, Keuangan, PUSBA) dan automasi deployment infrastruktur.',
   },
 ];
 
 const timeline = [
-  { year: '2021', title: 'Fondasi IT', text: 'Memperkuat jaringan komputer, sistem operasi, database, dan pemrograman dasar.' },
-  { year: '2023', title: 'Cloud Collaboration', text: 'Berperan pada pengelolaan infrastruktur GCP untuk capstone Bangkit Academy.' },
-  { year: '2024', title: 'Frontend Internship', text: 'Mengembangkan UI website IndoTeknisi dan membantu integrasi workflow platform.' },
-  { year: '2025', title: 'Security Research', text: 'Merancang IDPS berbasis Iptables dengan notifikasi Telegram, Email, dan monitoring.' },
+  { year: '2023', title: 'Kuliah S1 ITATS', text: 'Mulai S1 Teknik Informatika di Institut Teknologi Adhi Tama Surabaya (ITATS).' },
+  { year: 'Mei 2024', title: 'Internship SISGO', text: 'Internship di PT Sisgo Global Teknologi sebagai developer selama 3 bulan (Mei–Agustus 2024).' },
+  { year: 'Agu 2024', title: 'Asisten Lab RPL', text: 'Aktif sebagai Asisten Laboratorium Rekayasa Perangkat Lunak (RPL) di ITATS sejak Agustus 2024.' },
+  { year: 'Agu 2025', title: 'IT Staff ITATS', text: 'Aktif sebagai Karyawan/CSR IT Staff Programmer, mengelola seluruh sistem web dan mobile kampus ITATS.' },
 ];
 
 const workflow = [
@@ -62,6 +62,7 @@ const workflow = [
 function App() {
   const shellRef = useRef(null);
   const [githubStats, setGithubStats] = useState(githubFallback);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -185,23 +186,23 @@ function App() {
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <span className="status-pill">
                 <span className="status-dot" />
-                Available for IT support and frontend roles
+                Open for collaboration & opportunities
               </span>
-              <span className="mini-pill">Bandung, Indonesia</span>
+              <span className="mini-pill">Driyorejo, Gresik, Jawa Timur, Indonesia</span>
             </div>
 
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
-              System Admin / IT Support / Frontend
+              Web Dev · Mobile · IT Staff · Asisten Lab
             </p>
             <h1 className="max-w-4xl text-[clamp(3rem,8vw,7.5rem)] font-black leading-[0.9] text-white">
               Luthfi Shidqi Habibulloh
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-              Saya membangun dan merapikan sistem dari sisi infrastruktur, keamanan jaringan, sampai antarmuka web. Fokus saya sederhana: sistem harus jelas, stabil, mudah dipantau, dan enak dipakai.
+              Mahasiswa S1 Teknik Informatika ITATS yang aktif bekerja sebagai IT Staff mengelola seluruh sistem web kampus dan mengembangkan aplikasi mobile. Saya juga mengajar sebagai Asisten Lab RPL dan senang membangun sistem yang rapi, efisien, dan mudah dipakai.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a href="/CV_Rifky Octory Mulyana.pdf" download className="primary-action">
+              <a href={`${import.meta.env.BASE_URL}CV_Luthfi.pdf`} download className="primary-action">
                 <i className="ri-download-cloud-2-line" />
                 Download CV
               </a>
@@ -225,18 +226,35 @@ function App() {
             <div className="lanyard-orbit" />
             <div className="lanyard-top-pin" />
             <div className="absolute inset-[3%_-5%_-6%] translate-x-[calc(var(--mx)*-18px)] translate-y-[calc(var(--my)*-12px)]">
-              <Lanyard position={[0, 0, 14]} gravity={[0, -40, 0]} fov={20} />
+              {/* 
+                💡 CARA MENGUBAH UKURAN LANYARD:
+                Ubah nilai Z pada 'position={[0, 0, 11]}'. 
+                Semakin kecil nilainya (misal 10 atau 9), Lanyard akan semakin BESAR (kamera mendekat).
+                Semakin besar nilainya (misal 15 atau 20), Lanyard akan semakin KECIL (kamera menjauh).
+                Dengan cara ini, ukuran tali dan kartu akan otomatis menyesuaikan dan tetap proporsional.
+              */}
+              <Lanyard position={[0, 0, 10.5]} gravity={[0, -40, 0]} fov={20} />
             </div>
-            <div className="floating-console">
-              <div className="mb-3 flex items-center gap-2 text-xs text-slate-400">
-                <span className="console-light bg-rose-400" />
-                <span className="console-light bg-amber-300" />
-                <span className="console-light bg-lime-300" />
-                ops-note.sh
+            <div className="floating-console cursor-pointer transition-all duration-300 hover:border-cyan-500/30" onClick={() => setIsTerminalOpen(!isTerminalOpen)}>
+              <div className={`${isTerminalOpen ? 'mb-3' : 'mb-0'} flex items-center justify-between text-xs text-slate-400`}>
+                <div className="flex items-center gap-2">
+                  <span className="console-light bg-rose-400" />
+                  <span className="console-light bg-amber-300" />
+                  <span className="console-light bg-lime-300" />
+                  about.sh
+                </div>
+                <i className={`ri-arrow-${isTerminalOpen ? 'down' : 'up'}-s-line text-lg`} />
               </div>
-              <p><span>$</span> monitor --logs --alerts</p>
-              <p><span>OK</span> service healthy</p>
-              <p><span>UP</span> portfolio live</p>
+              {isTerminalOpen && (
+                <div className="animate__animated animate__fadeIn">
+                  <p><span>$</span> whoami</p>
+                  <p><span>→</span> fullstack dev</p>
+                  <p><span>$</span> system status</p>
+                  <p><span>→</span> it works (somehow)</p>
+                  <p><span>$</span> skills</p>
+                  <p><span>→</span> ctrl c + ctrl v 🙏</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -287,11 +305,44 @@ function App() {
             <img src={DataImage.HeroImage} alt="Luthfi Shidqi Habibulloh" className="profile-photo" loading="lazy" />
             <div>
               <p className="eyebrow">Tentang saya</p>
-              <h2 className="section-title">Engineer yang suka sistem rapi dan visual yang punya fungsi.</h2>
+              <h2 className="section-title">Mahasiswa aktif yang kerja nyata, bukan cuma belajar teori.</h2>
             </div>
             <p className="text-base leading-8 text-slate-300">
-              Lulusan S1 Teknik Komputer dengan minat kuat pada System Administration, IT Support, keamanan jaringan, dan pengembangan frontend React. Saya nyaman membaca log, mengatur server, membuat dokumentasi, dan mengubah ide teknis menjadi UI yang mudah dipahami.
+              Saya <strong className="text-white">Luthfi Shidqi Habibulloh</strong>, lahir 14 Agustus 2005 di Gresik.
+              Mahasiswa S1 Teknik Informatika semester 6 di <strong className="text-cyan-300">ITATS</strong>.
+              Saat ini aktif bekerja sebagai <strong className="text-cyan-300">CSR IT Staff Programmer</strong> di ITATS
+              — mengelola Classroom, SIM, SIMPEG, Keuangan, PUSBA, TEFL, Tugas Akhir Admin, dan Aplikasi Mobile Classroom.
+              Sekaligus mengajar sebagai <strong className="text-cyan-300">Asisten Lab RPL</strong>.
             </p>
+
+            {/* Tech Stack Chips */}
+            <div className="mt-5">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-500">Tech Stack</p>
+              <div className="flex flex-wrap gap-2">
+                {['Laravel', 'React', 'Next.js', 'Tailwind', 'Bootstrap', 'jQuery', 'HTML/CSS', 'JavaScript', 'PHP', 'Flutter', 'Dart', 'MySQL', 'GitHub', 'GitLab'].map(skill => (
+                  <span key={skill} className="rounded-full border border-slate-700 bg-slate-900/60 px-3 py-1 text-xs font-bold text-slate-300 backdrop-blur">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Education */}
+            <div className="mt-5 space-y-2 border-t border-slate-800 pt-5">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-500">Pendidikan</p>
+              <div className="flex justify-between text-sm">
+                <span className="font-bold text-white">S1 Informatika · ITATS</span>
+                <span className="text-cyan-400">2023–skrg</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">SMA Negeri 1 Wringinanom</span>
+                <span className="text-slate-500">2020–2023</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">SMP Negeri 16 Gresik</span>
+                <span className="text-slate-500">2017–2020</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-5">
@@ -407,22 +458,30 @@ function App() {
         <div className="contact-panel">
           <div>
             <p className="eyebrow">Kontak</p>
-            <h2 className="section-title max-w-3xl">Punya sistem yang perlu dirapikan atau UI yang perlu dibuat lebih hidup?</h2>
+            <h2 className="section-title max-w-3xl">Ada project web, mobile, atau sistem yang ingin dibangun bersama?</h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
-              Kirim pesan singkat. Saya bisa bantu dari analisis kebutuhan, setup environment, deployment, monitoring, sampai frontend portfolio atau dashboard.
+              Kirim pesan singkat. Saya bisa bantu dari web development, mobile app, setup environment, deployment, hingga pengelolaan sistem IT.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="mailto:luthfishidqi@example.com" className="secondary-action">
+              <a href="mailto:luthfishidqi2@gmail.com" className="secondary-action">
                 <i className="ri-mail-send-line" />
-                Email
+                Email Saya
               </a>
               <a href="https://wa.me/6289507370805" target="_blank" rel="noopener noreferrer" className="secondary-action">
                 <i className="ri-whatsapp-line" />
-                62895 0737 0805
+                Hubungi via WhatsApp
               </a>
               <a href="https://github.com/itzluthfi" target="_blank" rel="noopener noreferrer" className="secondary-action">
                 <i className="ri-github-fill" />
                 GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/luthfi-shidqi-b99862372/" target="_blank" rel="noopener noreferrer" className="secondary-action">
+                <i className="ri-linkedin-fill" />
+                LinkedIn
+              </a>
+              <a href="https://www.instagram.com/itzluthfi/" target="_blank" rel="noopener noreferrer" className="secondary-action">
+                <i className="ri-instagram-fill" />
+                Instagram
               </a>
             </div>
           </div>

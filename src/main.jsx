@@ -17,7 +17,7 @@ AOS.init();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <PreLoader />
       <div className='container mx-auto px-4'>
         {/* Navbar dipindah ke luar agar muncul di semua halaman */}
