@@ -302,7 +302,6 @@ function App() {
       <section id="tentang" className="section-band py-24">
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
           <div className="sticky-panel">
-            <img src={DataImage.HeroImage} alt="Luthfi Shidqi Habibulloh" className="profile-photo" loading="lazy" />
             <div>
               <p className="eyebrow">Tentang saya</p>
               <h2 className="section-title">Mahasiswa aktif yang kerja nyata, bukan cuma belajar teori.</h2>
