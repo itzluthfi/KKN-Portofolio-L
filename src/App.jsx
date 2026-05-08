@@ -61,15 +61,24 @@ const workflow = [
   'Iterasi dari log dan feedback',
 ];
 
-function App({ isAnimeMode = false }) {
+function App() {
   const shellRef = useRef(null);
   const [githubStats, setGithubStats] = useState(githubFallback);
   const [isTerminalOpen, setIsTerminalOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
-  const [currentLive2dIndex, setCurrentLive2dIndex] = useState(0);
+  const [currentLive2dIndex, setCurrentLive2dIndex] = useState(79);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAnimeMode, setIsAnimeMode] = useState(false);
   const [colorMode, setColorMode] = useState('dark');
+  const [showLanyard, setShowLanyard] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [live2dErrorModal, setLive2dErrorModal] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const filteredModels = useMemo(() => {
+    return live2dModels.map((model, index) => ({ ...model, originalIndex: index }))
+      .filter(model => model.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [searchQuery]);
 
   const trailImages = useMemo(
     () => [
@@ -82,6 +91,8 @@ function App({ isAnimeMode = false }) {
 
   useEffect(() => {
     isFirstLoad = false;
+    const timer = setTimeout(() => setShowLanyard(true), 1800);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -163,107 +174,232 @@ function App({ isAnimeMode = false }) {
       {/* Global Settings Button */}
       <button
         onClick={() => setIsSettingsOpen(true)}
-        className="fixed bottom-[110px] right-4 md:bottom-12 md:right-8 z-[100] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-slate-800/90 text-white backdrop-blur shadow-xl border border-slate-700 hover:bg-cyan-500/20 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-cyan-500/20 transition-all group"
+        className="fixed bottom-[110px] right-4 md:bottom-12 md:right-8 z-[100] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-slate-800/90 text-white backdrop-blur shadow-xl border border-slate-700 hover:bg-cyan-500/20 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-cyan-500/20 transition-all group animate__animated animate__zoomIn animate__delay-3s"
         aria-label="Open Settings"
       >
         <i className="ri-settings-4-line text-2xl animate-[spin_4s_linear_infinite]" />
       </button>
 
-      {/* Global Slide Panel Settings */}
+      {/* Settings Overlay */}
+      {isSettingsOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999998] transition-opacity animate__animated animate__fadeIn"
+          onClick={() => setIsSettingsOpen(false)}
+        />
+      )}
+
+      {/* Settings Panel */}
       <div 
-        className={`fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-slate-900/95 border-l border-slate-700 backdrop-blur-md z-[101] transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl ${isSettingsOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-y-0 right-0 z-[999999] w-full max-w-sm bg-slate-900/95 shadow-2xl border-l border-slate-800 transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isSettingsOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
         <div className="flex items-center justify-between p-5 border-b border-slate-800">
-          <h3 className="text-white font-bold tracking-wider flex items-center gap-2">
-            <i className="ri-equalizer-line text-cyan-400" /> Pengaturan Web
-          </h3>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <i className="ri-settings-4-fill text-cyan-400" /> Pengaturan Web
+          </h2>
           <button 
             onClick={() => setIsSettingsOpen(false)}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
           >
-            <i className="ri-close-line text-2xl" />
+            <i className="ri-close-line text-xl" />
           </button>
         </div>
 
-        <div className="p-6 flex flex-col gap-6 overflow-y-auto">
-          <div className="space-y-3">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Mode Tema UI</label>
-            <div className="flex bg-slate-800/50 p-1 rounded-lg border border-slate-700">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          
+          {/* Theme Mode Selector */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-3 tracking-widest uppercase">
+              Mode Tema UI
+            </label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800/50 rounded-xl border border-slate-700/50">
               <button
-                onClick={() => {
-                  navigate('/');
-                  window.scrollTo(0, 0);
-                }}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${!isAnimeMode ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                onClick={() => setIsAnimeMode(false)}
+                className={`py-2 px-4 rounded-lg font-bold text-sm transition-all ${
+                  !isAnimeMode 
+                    ? 'bg-slate-700 text-white shadow-md' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
                 Normal
               </button>
               <button
-                onClick={() => {
-                  navigate('/anime');
-                  window.scrollTo(0, 0);
-                }}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${isAnimeMode ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                onClick={() => setIsAnimeMode(true)}
+                className={`py-2 px-4 rounded-lg font-bold text-sm transition-all ${
+                  isAnimeMode 
+                    ? 'bg-rose-900/40 text-rose-300 border border-rose-500/30 shadow-[0_0_15px_rgba(225,29,72,0.2)]' 
+                    : 'text-slate-400 hover:text-rose-300/70'
+                }`}
               >
                 Anime
               </button>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Warna Tema</label>
-            <div className="flex bg-slate-800/50 p-1 rounded-lg border border-slate-700">
+          {/* Color Mode Selector (Dark/Light) */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-3 tracking-widest uppercase">
+              Skema Warna
+            </label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-800/50 rounded-xl border border-slate-700/50">
               <button
                 onClick={() => setColorMode('dark')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${colorMode === 'dark' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                className={`flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
+                  colorMode === 'dark' 
+                    ? 'bg-slate-700 text-white shadow-md' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
                 <i className="ri-moon-fill" /> Dark
               </button>
               <button
                 onClick={() => setColorMode('light')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${colorMode === 'light' ? 'bg-slate-200 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                className={`flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-bold text-sm transition-all ${
+                  colorMode === 'light' 
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300/50 shadow-md' 
+                    : 'text-slate-400 hover:text-amber-200/70'
+                }`}
               >
                 <i className="ri-sun-fill" /> Light
               </button>
             </div>
           </div>
 
-          <div className={`space-y-3 transition-all duration-300 ${isAnimeMode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute'}`}>
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Pilih Karakter Live2D</label>
+          {/* Character Selector */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-bold text-slate-400 tracking-widest uppercase">
+                Pilih Karakter Live2D
+              </label>
+              <span className="text-cyan-400 font-medium bg-cyan-950/50 px-2 py-0.5 rounded text-[10px]">
+                {currentLive2dIndex + 1} / {live2dModels.length}
+              </span>
+            </div>
+
+            {/* Search Input */}
             <div className="relative">
-              <select 
-                className="w-full appearance-none rounded-lg bg-slate-800 px-4 py-3 text-sm text-white border border-slate-700 outline-none hover:border-cyan-500/50 focus:border-cyan-500 transition-colors cursor-pointer"
-                value={currentLive2dIndex}
-                onChange={(e) => setCurrentLive2dIndex(Number(e.target.value))}
-              >
-                {live2dModels.map((model, idx) => (
-                  <option key={model.name} value={idx}>{idx + 1}. {model.name}</option>
-                ))}
-              </select>
-              <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Cari nama karakter..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-800/80 border border-slate-700/50 text-white text-xs px-9 py-2.5 rounded-lg focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder:text-slate-500"
+              />
+              <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
             </div>
             
-            <div className="p-3 mt-4 rounded border border-rose-500/20 bg-rose-500/10 text-rose-200 text-xs leading-relaxed">
-              <strong>Info:</strong> Jika karakter tidak berubah, nyangkut, atau memunculkan pesan error "Failed to load" di console browser, berarti file model dari server (CDN) tidak lengkap. Silakan pilih nomor/karakter lain.
+            <div className="relative group mt-1">
+              {/* Left Scroll Button */}
+              <button 
+                onClick={() => {
+                  const container = document.getElementById('char-scroll-container');
+                  if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-slate-900/90 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg border border-slate-600 hover:bg-cyan-600 hover:border-cyan-400 transition-all -ml-3 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                aria-label="Scroll left"
+              >
+                <i className="ri-arrow-left-s-line text-xl" />
+              </button>
+
+              <div id="char-scroll-container" className="grid grid-rows-3 grid-flow-col gap-3 pb-2 overflow-x-auto snap-x custom-scrollbar min-h-[260px] content-start auto-cols-max relative z-10 px-1">
+                {filteredModels.length > 0 ? filteredModels.map((model) => (
+                  <button
+                    key={model.name}
+                    onClick={() => setCurrentLive2dIndex(model.originalIndex)}
+                    className={`relative w-[85px] h-20 rounded-xl border-2 overflow-hidden snap-center transition-all group/btn ${
+                      currentLive2dIndex === model.originalIndex 
+                        ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)] scale-105 z-10' 
+                        : 'border-slate-700/50 hover:border-slate-500 hover:scale-105 bg-slate-800/50'
+                    }`}
+                    title={model.name.replace(/_/g, ' ')}
+                  >
+                    <img
+                      src={`https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/${model.name}/${model.name}.pil.png`}
+                      alt={model.name}
+                      className="w-full h-full object-cover transition-transform group-hover/btn:scale-110"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-slate-800 flex items-center justify-center p-2 hidden">
+                      <span className="text-[10px] text-center text-slate-300 font-bold break-all drop-shadow-md leading-tight">
+                          {model.name.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    
+                    {/* Overlay Name */}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent pt-4 pb-1 px-1">
+                      <p className="text-[9px] font-bold text-center text-white truncate drop-shadow-lg leading-none">
+                        {model.name.split('_')[0]}
+                      </p>
+                    </div>
+                  </button>
+                )) : (
+                  <div className="w-full py-8 text-center text-slate-500 text-xs">
+                    Karakter tidak ditemukan.
+                  </div>
+                )}
+              </div>
+
+              {/* Right Scroll Button */}
+              <button 
+                onClick={() => {
+                  const container = document.getElementById('char-scroll-container');
+                  if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-slate-900/90 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg border border-slate-600 hover:bg-cyan-600 hover:border-cyan-400 transition-all -mr-3 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                aria-label="Scroll right"
+              >
+                <i className="ri-arrow-right-s-line text-xl" />
+              </button>
             </div>
           </div>
+
         </div>
       </div>
-
-      {/* Overlay if Settings Open */}
-      {isSettingsOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] transition-opacity"
-          onClick={() => setIsSettingsOpen(false)}
-        />
-      )}
 
       {/* Jika Anime Mode, tampilkan Widget Global Live2D */}
       {isAnimeMode && (
         <Live2DWidget 
-          jsonPath={live2dModels[currentLive2dIndex].jsonPath} 
+          model={live2dModels[currentLive2dIndex]} 
           position="right"
+          onError={(name) => setLive2dErrorModal(name)}
         />
+      )}
+
+      {/* Modal Error Live2D */}
+      {live2dErrorModal && (
+        <div className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
+          <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-sm w-[90%] shadow-2xl shadow-rose-900/20 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-orange-500"></div>
+            <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-error-warning-fill text-4xl text-rose-500"></i>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Gagal Memuat Karakter</h3>
+            <p className="text-sm text-slate-300 mb-6 leading-relaxed">
+              Karakter <strong className="text-rose-400">"{live2dErrorModal.replace(/_/g, ' ')}"</strong> gagal dimuat karena data tidak tersedia di server (Error 404). Silakan pilih karakter yang lain.
+            </p>
+            <button
+              onClick={() => {
+                setLive2dErrorModal(null);
+                setIsSettingsOpen(true);
+              }}
+              className="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-rose-500/25 active:scale-95"
+            >
+              Pilih Karakter Lain
+            </button>
+          </div>
+        </div>
       )}
 
     <main
@@ -271,12 +407,14 @@ function App({ isAnimeMode = false }) {
       className={`portfolio-shell transition-all duration-700 ease-in-out ${isAnimeMode ? 'theme-anime lg:pr-[400px] xl:pr-[450px]' : ''}`}
       onPointerMove={handlePointerMove}
     >
-      <Crosshair />
+      <Crosshair colorMode={colorMode} />
       <ImageTrail images={trailImages} />
-      <div className="fixed inset-0 -z-20 bg-[#05080a]" />
+      <div className="fixed inset-0 -z-20 bg-[#05080a]" style={{ opacity: colorMode === 'light' ? 0 : 1, transition: 'opacity 0.6s ease' }} />
       <div className="fixed inset-0 -z-10 opacity-70">
         <Particles
-          particleColors={['#f8fafc', '#67e8f9', '#bef264']}
+          particleColors={colorMode === 'light'
+            ? ['#0284c7', '#0369a1', '#065f46']
+            : ['#f8fafc', '#67e8f9', '#bef264']}
           particleCount={180}
           particleSpread={10}
           speed={0.08}
@@ -295,7 +433,7 @@ function App({ isAnimeMode = false }) {
         <GradualBlur position="bottom" />
 
         <div className="grid min-h-[calc(100vh-120px)] grid-cols-1 items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
-          <div className={`relative z-10 max-w-3xl animate__animated animate__fadeInUp ${isFirstLoad ? 'animate__delay-1s' : ''}`}>
+          <div className={`relative z-10 max-w-3xl animate__animated animate__fadeInUp ${isFirstLoad ? 'animate__delay-3s' : ''}`}>
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <span className="status-pill">
                 <span className="status-dot" />
@@ -335,14 +473,14 @@ function App({ isAnimeMode = false }) {
             </div>
           </div>
 
-          <div className={`relative h-[64vh] min-h-[440px] animate__animated animate__fadeIn ${isFirstLoad ? 'animate__delay-2s' : ''}`}>
+          <div className="relative h-[64vh] min-h-[440px]">
             
             {!isAnimeMode ? (
               <>
                 <div className="lanyard-orbit" />
                 <div className="lanyard-top-pin" />
-                <div className="absolute inset-[3%_-5%_-6%] translate-x-[calc(var(--mx)*-18px)] translate-y-[calc(var(--my)*-12px)]">
-                  <Lanyard position={[0, 0, 10.5]} gravity={[0, -40, 0]} fov={20} />
+                <div className="absolute top-[-50vh] md:top-[-40vh] bottom-[-6%] left-[-10%] right-[-10%] translate-x-[calc(var(--mx)*-18px)] translate-y-[calc(var(--my)*-12px)]">
+                  {showLanyard && <Lanyard position={[0, 2.5, 10.5]} gravity={[0, -40, 0]} fov={28} />}
                 </div>
               </>
             ) : (

@@ -1,5 +1,16 @@
 export const live2dModels = [
-  { name: "koharu", jsonPath: "https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/koharu/model.json" },
+  { 
+    name: "koharu", 
+    jsonPath: "https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/koharu/model.json",
+    // Anda bisa tambahkan konfigurasi ini ke karakter lain yang ukurannya berantakan di HP
+    mobileConfig: {
+      scale: 0.45,           // Ukuran karakter (semakin kecil angkanya, semakin mengecil)
+      hOffset: -70,          // Geser karakter ke kiri/kanan (semakin minus, semakin mentok kiri)
+      vOffset: -10,          // Geser karakter ke atas/bawah (ubah ke 0 atau minus agar turun mendekati bottom bar)
+      bubbleBottom: '300px', // Jarak tinggi balon chat dari bawah layar
+      bubbleLeft: '90px'     // Jarak balon chat dari sisi kiri layar
+    }
+  },
   { name: "carcano1891_2201", jsonPath: "https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/carcano1891_2201/model.json" },
   { name: "k2_3301", jsonPath: "https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/k2_3301/model.json" },
   { name: "sagiri", jsonPath: "https://cdn.jsdelivr.net/gh/evrstr/live2d-widget-models/live2d_evrstr/sagiri/model.json" },

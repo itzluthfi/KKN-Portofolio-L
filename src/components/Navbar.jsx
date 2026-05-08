@@ -43,7 +43,7 @@ const Navbar = () => {
   return (
     <>
       {/* ─── Desktop Navbar ─── */}
-      <header className={`site-nav mt-4 ${scrolled ? "shadow-cyan-950/30" : ""}`}>
+      <header className={`site-nav mt-4 animate__animated animate__fadeIn animate__delay-3s ${scrolled ? "shadow-cyan-950/30" : ""}`}>
         <div className="flex min-h-16 items-center justify-between px-4 md:px-5">
           <Link to="/#beranda" className="flex items-center gap-3">
             <span className="grid h-9 w-9 place-items-center bg-cyan-300 font-black text-slate-950">LS</span>
@@ -89,7 +89,7 @@ const Navbar = () => {
       </header>
 
       {/* ─── Mobile Bottom Bar ─── */}
-      <nav className="mobile-bottom-bar md:hidden">
+      <nav className="mobile-bottom-bar md:hidden animate__animated animate__fadeInUp animate__delay-3s">
         <div className="mobile-bottom-bar-inner">
           {navItems.map(item => {
             const active = isActive(item.href);

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const dialogs = {
   beranda: ["Hai, selamat datang di Portofolio Luthfi! 👋", "Wah, desainnya keren ya?", "Ayo scroll ke bawah untuk lihat rahasia Luthfi!"],
-  github: ["Wow, lihat commit hijaunya! 💻", "Luthfi aktif banget lho di GitHub.", "Banyak repository open source di sini!"],
+  github: ["Rajin ngoding tiap hari sampai rumputnya hijau semua! 🌿", "Banyak project seru di repository ini lho.", "Ssst.. kalau kodingan error, mending ngopi dulu! ☕"],
   tentang: ["Sstt.. Luthfi itu Asisten Lab dan IT Staff kampus! 🤫", "Wah, tech stack-nya banyak juga ya.", "Ternyata dia suka bangun sistem IT kampus."],
   workflow: ["Kerja rapi, sistem terpantau! 🛠️", "Dokumentasi itu hal yang penting lho.", "Semua ada prosesnya, dari awal sampai rilis."],
   proyek: ["Coba lihat proyek-proyek ini, keren kan? ✨", "Banyak sistem nyata yang sudah dirilis.", "Silakan klik detail untuk lihat selengkapnya."],
@@ -10,7 +10,7 @@ const dialogs = {
   kontak: ["Ada ide proyek seru? Langsung hubungi aja! 📩", "Jangan malu-malu buat kirim pesan.", "Terima kasih sudah berkunjung ke sini! ❤️"]
 };
 
-export default function Live2DWidget({ jsonPath, position = 'right' }) {
+export default function Live2DWidget({ model, position = 'right', onError }) {
   const [activeSection, setActiveSection] = useState('beranda');
   const [currentText, setCurrentText] = useState(dialogs.beranda[0]);
   const [isVisible, setIsVisible] = useState(true);
@@ -60,7 +60,7 @@ export default function Live2DWidget({ jsonPath, position = 'right' }) {
      return () => { clearTimeout(timer1); clearInterval(timer2); };
   }, [activeSection]);
 
-  // Load Live2D Core
+  // Load Live2D Core — reload script fresh on every model change
   useEffect(() => {
     const cleanUpWidget = () => {
       const widget = document.getElementById('live2d-widget');
@@ -72,41 +72,36 @@ export default function Live2DWidget({ jsonPath, position = 'right' }) {
     cleanUpWidget();
 
     const initLive2D = () => {
-      if (window.L2Dwidget) {
+      if (window.L2Dwidget && model) {
         const isMobile = window.innerWidth < 768;
         window.L2Dwidget.init({
-          model: {
-            jsonPath: jsonPath,
-          },
+          model: { jsonPath: model.jsonPath },
           display: {
             position: isMobile ? 'left' : position,
-            width: isMobile ? 300 : 400,
-            height: isMobile ? 500 : 700,
-            hOffset: isMobile ? -20 : (position === 'right' ? 80 : 20),
-            vOffset: isMobile ? 80 : 0,
+            width:    isMobile ? 300 : 400,
+            height:   isMobile ? 500 : 700,
+            hOffset:  isMobile ? (model.mobileConfig?.hOffset ?? -20) : (position === 'right' ? 80 : 20),
+            vOffset:  isMobile ? (model.mobileConfig?.vOffset ?? 80) : 0,
           },
           mobile: {
             show: true,
-            scale: 0.6,
+            scale: model.mobileConfig?.scale ?? 0.6,
             motion: true,
           },
-          react: {
-            opacityDefault: 1,
-            opacityOnHover: 1,
-          },
+          react: { opacityDefault: 1, opacityOnHover: 1 },
         });
       }
     };
 
     const scriptId = 'live2d-script';
-    let script = document.getElementById(scriptId);
-    
-    if (script) {
-      script.remove();
+    // Always remove and reload script so L2Dwidget is fully re-initialized
+    const existing = document.getElementById(scriptId);
+    if (existing) {
+      existing.remove();
       window.L2Dwidget = undefined;
     }
 
-    script = document.createElement('script');
+    const script = document.createElement('script');
     script.id = scriptId;
     script.src = 'https://cdn.jsdelivr.net/npm/live2d-widget@3.1.4/lib/L2Dwidget.min.js';
     script.async = true;
@@ -116,13 +111,13 @@ export default function Live2DWidget({ jsonPath, position = 'right' }) {
     return () => {
       cleanUpWidget();
     };
-  }, [jsonPath, position]);
+  }, [model, position]);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div 
-      className={`fixed z-[99999] p-4 md:p-5 rounded-2xl shadow-2xl backdrop-blur-md border transition-all duration-500 ease-out transform pointer-events-none ${
+      className={`fixed z-[100000] p-4 md:p-5 rounded-2xl shadow-2xl backdrop-blur-md border transition-all duration-500 ease-out transform pointer-events-none ${
         isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
       }`}
       style={{
@@ -130,8 +125,8 @@ export default function Live2DWidget({ jsonPath, position = 'right' }) {
         color: '#0f172a',
         borderColor: 'rgba(203, 213, 225, 0.5)',
         maxWidth: isMobile ? '200px' : '280px',
-        bottom: isMobile ? '360px' : '540px',
-        left: isMobile ? '130px' : 'auto',
+        bottom: isMobile ? (model?.mobileConfig?.bubbleBottom ?? '360px') : '540px',
+        left: isMobile ? (model?.mobileConfig?.bubbleLeft ?? '130px') : 'auto',
         right: isMobile ? 'auto' : '260px',
       }}
     >
