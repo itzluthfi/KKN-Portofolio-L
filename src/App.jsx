@@ -8,6 +8,8 @@ import Crosshair from './components/effects/Crosshair.jsx';
 import GradualBlur from './components/effects/GradualBlur.jsx';
 import ImageTrail from './components/effects/ImageTrail.jsx';
 import LaserFlow from './components/effects/LaserFlow.jsx';
+import Live2DWidget from './components/Live2DWidget.jsx';
+import { live2dModels } from './data/live2dModels.js';
 
 let isFirstLoad = true;
 
@@ -59,10 +61,13 @@ const workflow = [
   'Iterasi dari log dan feedback',
 ];
 
-function App() {
+function App({ isAnimeMode = false }) {
   const shellRef = useRef(null);
   const [githubStats, setGithubStats] = useState(githubFallback);
   const [isTerminalOpen, setIsTerminalOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
+  const [currentLive2dIndex, setCurrentLive2dIndex] = useState(0);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [colorMode, setColorMode] = useState('dark');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -80,13 +85,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const navEntries = window.performance.getEntriesByType('navigation');
-
-    if (navEntries.length > 0 && navEntries[0].type === 'reload') {
-      navigate('/', { replace: true });
-      window.scrollTo(0, 0);
+    if (colorMode === 'light') {
+      document.body.classList.add('theme-light');
+    } else {
+      document.body.classList.remove('theme-light');
     }
-  }, [navigate]);
+  }, [colorMode]);
+
+
 
   useEffect(() => {
     if (location.hash) {
@@ -153,9 +159,116 @@ function App() {
   };
 
   return (
+    <>
+      {/* Global Settings Button */}
+      <button
+        onClick={() => setIsSettingsOpen(true)}
+        className="fixed bottom-[110px] right-4 md:bottom-12 md:right-8 z-[100] flex h-[52px] w-[52px] items-center justify-center rounded-full bg-slate-800/90 text-white backdrop-blur shadow-xl border border-slate-700 hover:bg-cyan-500/20 hover:text-cyan-300 hover:border-cyan-500/50 hover:shadow-cyan-500/20 transition-all group"
+        aria-label="Open Settings"
+      >
+        <i className="ri-settings-4-line text-2xl animate-[spin_4s_linear_infinite]" />
+      </button>
+
+      {/* Global Slide Panel Settings */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-slate-900/95 border-l border-slate-700 backdrop-blur-md z-[101] transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl ${isSettingsOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+          <h3 className="text-white font-bold tracking-wider flex items-center gap-2">
+            <i className="ri-equalizer-line text-cyan-400" /> Pengaturan Web
+          </h3>
+          <button 
+            onClick={() => setIsSettingsOpen(false)}
+            className="text-slate-400 hover:text-white transition-colors"
+          >
+            <i className="ri-close-line text-2xl" />
+          </button>
+        </div>
+
+        <div className="p-6 flex flex-col gap-6 overflow-y-auto">
+          <div className="space-y-3">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Mode Tema UI</label>
+            <div className="flex bg-slate-800/50 p-1 rounded-lg border border-slate-700">
+              <button
+                onClick={() => {
+                  navigate('/');
+                  window.scrollTo(0, 0);
+                }}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${!isAnimeMode ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              >
+                Normal
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/anime');
+                  window.scrollTo(0, 0);
+                }}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${isAnimeMode ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              >
+                Anime
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Warna Tema</label>
+            <div className="flex bg-slate-800/50 p-1 rounded-lg border border-slate-700">
+              <button
+                onClick={() => setColorMode('dark')}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${colorMode === 'dark' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              >
+                <i className="ri-moon-fill" /> Dark
+              </button>
+              <button
+                onClick={() => setColorMode('light')}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${colorMode === 'light' ? 'bg-slate-200 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              >
+                <i className="ri-sun-fill" /> Light
+              </button>
+            </div>
+          </div>
+
+          <div className={`space-y-3 transition-all duration-300 ${isAnimeMode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute'}`}>
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Pilih Karakter Live2D</label>
+            <div className="relative">
+              <select 
+                className="w-full appearance-none rounded-lg bg-slate-800 px-4 py-3 text-sm text-white border border-slate-700 outline-none hover:border-cyan-500/50 focus:border-cyan-500 transition-colors cursor-pointer"
+                value={currentLive2dIndex}
+                onChange={(e) => setCurrentLive2dIndex(Number(e.target.value))}
+              >
+                {live2dModels.map((model, idx) => (
+                  <option key={model.name} value={idx}>{idx + 1}. {model.name}</option>
+                ))}
+              </select>
+              <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+            
+            <div className="p-3 mt-4 rounded border border-rose-500/20 bg-rose-500/10 text-rose-200 text-xs leading-relaxed">
+              <strong>Info:</strong> Jika karakter tidak berubah, nyangkut, atau memunculkan pesan error "Failed to load" di console browser, berarti file model dari server (CDN) tidak lengkap. Silakan pilih nomor/karakter lain.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay if Settings Open */}
+      {isSettingsOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] transition-opacity"
+          onClick={() => setIsSettingsOpen(false)}
+        />
+      )}
+
+      {/* Jika Anime Mode, tampilkan Widget Global Live2D */}
+      {isAnimeMode && (
+        <Live2DWidget 
+          jsonPath={live2dModels[currentLive2dIndex].jsonPath} 
+          position="right"
+        />
+      )}
+
     <main
       ref={shellRef}
-      className="portfolio-shell"
+      className={`portfolio-shell transition-all duration-700 ease-in-out ${isAnimeMode ? 'theme-anime lg:pr-[400px] xl:pr-[450px]' : ''}`}
       onPointerMove={handlePointerMove}
     >
       <Crosshair />
@@ -175,7 +288,7 @@ function App() {
         />
       </div>
 
-      <section id="beranda" className="hero-stage relative min-h-[calc(100vh-96px)] overflow-hidden pt-8">
+      <section id="beranda" data-section="beranda" className="hero-stage relative min-h-[calc(100vh-96px)] overflow-hidden pt-8">
         <div className="hero-grid absolute inset-0 -z-10" />
         <div className="hero-scanline absolute inset-x-0 top-12 -z-10 h-px" />
         <LaserFlow />
@@ -223,18 +336,24 @@ function App() {
           </div>
 
           <div className={`relative h-[64vh] min-h-[440px] animate__animated animate__fadeIn ${isFirstLoad ? 'animate__delay-2s' : ''}`}>
-            <div className="lanyard-orbit" />
-            <div className="lanyard-top-pin" />
-            <div className="absolute inset-[3%_-5%_-6%] translate-x-[calc(var(--mx)*-18px)] translate-y-[calc(var(--my)*-12px)]">
-              {/* 
-                💡 CARA MENGUBAH UKURAN LANYARD:
-                Ubah nilai Z pada 'position={[0, 0, 11]}'. 
-                Semakin kecil nilainya (misal 10 atau 9), Lanyard akan semakin BESAR (kamera mendekat).
-                Semakin besar nilainya (misal 15 atau 20), Lanyard akan semakin KECIL (kamera menjauh).
-                Dengan cara ini, ukuran tali dan kartu akan otomatis menyesuaikan dan tetap proporsional.
-              */}
-              <Lanyard position={[0, 0, 10.5]} gravity={[0, -40, 0]} fov={20} />
-            </div>
+            
+            {!isAnimeMode ? (
+              <>
+                <div className="lanyard-orbit" />
+                <div className="lanyard-top-pin" />
+                <div className="absolute inset-[3%_-5%_-6%] translate-x-[calc(var(--mx)*-18px)] translate-y-[calc(var(--my)*-12px)]">
+                  <Lanyard position={[0, 0, 10.5]} gravity={[0, -40, 0]} fov={20} />
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center lg:justify-start lg:pl-10">
+                <div className="text-center md:text-left mt-auto mb-20">
+                  <span className="inline-block px-4 py-2 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-300 font-bold uppercase tracking-widest text-xs animate-pulse">
+                    Live2D Character Active
+                  </span>
+                </div>
+              </div>
+            )}
             <div className="floating-console cursor-pointer transition-all duration-300 hover:border-cyan-500/30" onClick={() => setIsTerminalOpen(!isTerminalOpen)}>
               <div className={`${isTerminalOpen ? 'mb-3' : 'mb-0'} flex items-center justify-between text-xs text-slate-400`}>
                 <div className="flex items-center gap-2">
@@ -260,7 +379,7 @@ function App() {
         </div>
       </section>
 
-      <section className="github-section py-24">
+      <section data-section="github" className="github-section py-24">
         <div className="github-panel">
           <div>
             <p className="eyebrow">GitHub live stats</p>
@@ -299,7 +418,7 @@ function App() {
         </div>
       </section>
 
-      <section id="tentang" className="section-band py-24">
+      <section id="tentang" data-section="tentang" className="section-band py-24">
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
           <div className="sticky-panel">
             <div>
@@ -358,7 +477,7 @@ function App() {
         </div>
       </section>
 
-      <section className="py-24">
+      <section data-section="workflow" className="py-24">
         <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <p className="eyebrow">Workflow</p>
@@ -389,7 +508,7 @@ function App() {
         </div>
       </section>
 
-      <section id="proyek" className="section-band py-24">
+      <section id="proyek" data-section="proyek" className="section-band py-24">
         <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <p className="eyebrow">Selected work</p>
@@ -433,7 +552,7 @@ function App() {
         </div>
       </section>
 
-      <section className="py-24">
+      <section data-section="tools" className="py-24">
         <div className="mb-12 text-center">
           <p className="eyebrow justify-center">Tool stack</p>
           <h2 className="section-title mx-auto max-w-3xl">Tools yang sering saya pakai untuk build, debug, dan deploy.</h2>
@@ -453,7 +572,7 @@ function App() {
         </div>
       </section>
 
-      <section id="kontak" className="contact-section my-24">
+      <section id="kontak" data-section="kontak" className="contact-section my-24">
         <div className="contact-panel">
           <div>
             <p className="eyebrow">Kontak</p>
@@ -505,6 +624,7 @@ function App() {
         </div>
       </section>
     </main>
+    </>
   );
 }
 

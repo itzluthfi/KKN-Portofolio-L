@@ -25,7 +25,10 @@ createRoot(document.getElementById('root')).render(
         
         <Routes>
           {/* Halaman Utama (Beranda) */}
-          <Route path="/" element={<App />} />
+          <Route path="/" element={<App isAnimeMode={false} />} />
+          
+          {/* Halaman Anime Mode */}
+          <Route path="/anime" element={<App isAnimeMode={true} />} />
           
           {/* Halaman Detail Proyek yang dinamis berdasarkan slug */}
           <Route path="/proyek/:slug" element={<DetailProyek />} />
